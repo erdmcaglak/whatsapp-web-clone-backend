@@ -15,7 +15,6 @@ const _ = require('lodash');
 const EventEmitter = require('events')
 const emitter = new EventEmitter()
 const path = require("path")
-const fs = require('fs');
 
 app.use(bodyParser.urlencoded({extended: true,limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
