@@ -30,10 +30,10 @@ app.use(express.urlencoded({extended:true}));
 
 let clientMap={};
 let messageListMap ={};
-//app.use(express.static(path.join(__dirname, "./dist")))
+app.use(express.static(path.join(__dirname, "./dist")))
 
-server.listen(8085)
-//httpsServer.listen(8085)
+server.listen(8080)
+httpsServer.listen(8085)
 const sendImage = async (token,b64,b64Name,num,type) =>{
     const mediaFile = await new MessageMedia(`${type}`,b64,`${b64Name}`)
     const x = await sendMessage(token,num, mediaFile)
