@@ -26,14 +26,14 @@ let messageListMap ={};
 app.use(express.static(path.join(__dirname, "./dist")))
 
 
-//optional port number
+//----begin optional port number----
 let isProduction = conf.args["is-production"];
 if ( isProduction === undefined ) isProduction = conf.isProduction
 
 let listenPort;
 if (isProduction) listenPort = conf.ports.production
 else listenPort = conf.ports.development
-
+//----end optional port number----
 
 server.listen(listenPort, ()=>console.log(`listening on the port ${listenPort}`))
 const sendImage = async (token,b64,b64Name,num,type) =>{
