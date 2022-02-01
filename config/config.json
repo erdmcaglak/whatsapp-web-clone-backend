@@ -3,5 +3,6 @@
         "origin": "*",
         "methods": ["GET", "POST", "DELETE"],
         "credentials": true
-    }
+    },
+    "isProduction": false
 }
