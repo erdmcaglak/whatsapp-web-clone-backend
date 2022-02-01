@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start-pm2-test": "pm2 start 'node /home/whapichat/node/whapichat_server-test/app.js' --name=server-development",
+    "start-pm2": "pm2 start 'node /home/whapichat/node/whapichat_server/app.js --is-production=1' --name=server-production",
     "extract-whapichat-server.tar.gz-in-test" : "tar xzvfp ../whapichat-server.tar.gz --directory=/home/whapichat/node/whapichat_server-test",
     "extract-whapichat-server.tar.gz" : "tar xzvfp ../whapichat-server.tar.gz --directory=/home/whapichat/node/whapichat_server",
     "pack-whapichat-server.tar.gz" : "tar czvfp ../whapichat-server.tar.gz --exclude=node_modules --exclude=.git ."
