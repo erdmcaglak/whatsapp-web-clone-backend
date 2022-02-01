@@ -6,9 +6,7 @@ const express = require('express');
 const app = express();
 const socketio = require("socket.io");
 const http = require('http');
-const https = require('https');
 const server = http.createServer(app)
-const httpsServer =https.createServer(app);
 const io = socketio(server,{
     cors: {
         origin: "*",
@@ -33,7 +31,6 @@ let messageListMap ={};
 app.use(express.static(path.join(__dirname, "./dist")))
 
 server.listen(8080)
-httpsServer.listen(8085)
 const sendImage = async (token,b64,b64Name,num,type) =>{
     const mediaFile = await new MessageMedia(`${type}`,b64,`${b64Name}`)
     const x = await sendMessage(token,num, mediaFile)
