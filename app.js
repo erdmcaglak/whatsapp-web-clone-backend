@@ -6,7 +6,9 @@ const express = require('express');
 const app = express();
 const socketio = require("socket.io");
 const http = require('http');
+const https = require('https');
 const server = http.createServer(app)
+const httpsServer =https.createServer(app);
 const io = socketio(server,{
     cors: {
         origin: "*",
@@ -18,6 +20,8 @@ const io = socketio(server,{
 const _ = require('lodash');
 const EventEmitter = require('events')
 const emitter = new EventEmitter()
+const path = require("path")
+const fs = require('fs');
 
 app.use(bodyParser.urlencoded({extended: true,limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
@@ -26,8 +30,10 @@ app.use(express.urlencoded({extended:true}));
 
 let clientMap={};
 let messageListMap ={};
+//app.use(express.static(path.join(__dirname, "./dist")))
 
 server.listen(8085)
+//httpsServer.listen(8085)
 const sendImage = async (token,b64,b64Name,num,type) =>{
     const mediaFile = await new MessageMedia(`${type}`,b64,`${b64Name}`)
     const x = await sendMessage(token,num, mediaFile)
@@ -185,6 +191,7 @@ app.post('/load_image',async (req,res)=>{
 app.post('/send_message/:token',async (req,res)=>{
     const {token} = req.params;
     const {message} = req.body
+    console.log({i:req.body})
     let num;
     if(req.body.hasOwnProperty('name')){
         const {name} = req.body;
@@ -308,9 +315,9 @@ app.get('/get_info/:token',async (req,res)=>{
 
 app.get('/is_sign_in/:token',async (req,res)=>{
     const {token} = req.params;
-    if(clientMap.hasOwnProperty(token)){
-        clientMap[token].client.getProfilePicUrl(clientMap[token].client.info.wid._serialized).then(response=>{
-            const chat = getChats(token).then(chat=>{
+    if(clientMap[token].isReady){
+        clientMap[token].client.getProfilePicUrl(clientMap[token].client.info.me._serialized).then(response=>{
+            getChats(token).then(chat=>{
                 res.send({
                     loading:false,
                     userNumber:{
@@ -323,14 +330,16 @@ app.get('/is_sign_in/:token',async (req,res)=>{
                     },
                     chat,
                 })
+            }).catch(err=>{
+                console.error({'Error in getChatById':err})
             });
             
+        }).catch(err=>{
+            console.error({'Error in getChatById':err})
         })
        
     }
 })
-
-
 
 app.post('/send_image/:token',(req,res)=>{
     const {token} = req.params;
@@ -360,6 +369,9 @@ app.post('/send_image/:token',(req,res)=>{
     })
 })
 
+
+
+
 io.on('connection',socket=>{
     const socketToken = socket.handshake.auth.token;
     socket.join(`${socketToken}`);
@@ -375,6 +387,7 @@ io.on('connection',socket=>{
             getUserNumber();
             getProfileImage();
             getContacts(socketToken);
+            clientMap[socketToken].isReady = true;
             socket.emit('start_loading',false)
         }
 
@@ -468,6 +481,7 @@ io.on('connection',socket=>{
             client : null,
             isAuth:false,
             isHasSession:false,
+            isReady:false,
         }
     }
 
