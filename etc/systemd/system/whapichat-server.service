@@ -2,8 +2,8 @@
 Description=Whapichat Server Service
 
 [Service]
-ExecStartPre=/usr/bin/bash -c "pm2 start "node whapichat_server-test/app.js"; /bin/true"
-ExecStart=/usr/bin/pm2 whapichat_server/app.js --is-production=1
+ExecStartPre=/usr/bin/bash -c "pm2 start 'node whapichat_server-test/app.js' --name='server-development'; /bin/true"
+ExecStart=/usr/bin/pm2 whapichat_server/app.js --name="server-production" --is-production=1
 Type=oneshot
 WorkingDirectory=/home/whapichat/node
 
