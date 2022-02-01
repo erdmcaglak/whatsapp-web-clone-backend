@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pack-whapichat-server-full.tar.gz" : "tar czvfp ../whapichat-server.tar.gz ../whapichat-backend/",
-    "pack-whapichat-server.tar.gz" : "tar czvfp ../whapichat-server.tar.gz --exclude=whapichat-backend/node_modules ../whapichat-backend/"
+    "extract-whapichat-server-test.tar.gz" : "tar xzvfp ../whapichat-server-test.tar.gz --directory=/home/whapichat/node/whapichat_server-test",
+    "extract-whapichat-server.tar.gz" : "tar xzvfp ../whapichat-server-test.tar.gz --directory=/home/whapichat/node/whapichat_server",
+    "pack-whapichat-server.tar.gz" : "tar czvfp ../whapichat-server-test.tar.gz --exclude=node_modules --exclude=.git ."
 
   },
   "author": "",
