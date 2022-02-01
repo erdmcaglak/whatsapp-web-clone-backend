@@ -4,5 +4,9 @@
         "methods": ["GET", "POST", "DELETE"],
         "credentials": true
     },
-    "isProduction": false
+    "isProduction": false,
+    "ports": {
+        "production": 8080,
+        "development": 8081
+    }
 }
