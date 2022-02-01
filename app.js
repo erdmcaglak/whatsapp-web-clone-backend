@@ -21,6 +21,17 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(cors());
 app.use(express.urlencoded({extended:true}));
 
+const puppeteerOptions = {
+    args: [
+        '--no-sandbox',
+        '--ignore-certificate-errors',
+        '--disabled-setupid-sandbox',
+        '--start-maximized',
+        '--disable-dev-shm-usage'
+        ]
+}
+
+
 let clientMap={};
 let messageListMap ={};
 app.use(express.static(path.join(__dirname, "./dist")))
@@ -395,7 +406,8 @@ io.on('connection',socket=>{
 
         if(!clientMap[socketToken].isHasSession){
             clientMap[socketToken].client = new Client({
-                session: clientMap[socketToken].session
+                session: clientMap[socketToken].session,
+                puppeteer: puppeteerOptions
             });
             clientMap[socketToken].isHasSession = true;
             clientMap[socketToken].client.initialize();
@@ -458,7 +470,9 @@ io.on('connection',socket=>{
     const withOutSession = () =>{
         clientMap.hasOwnProperty(socketToken) ? '' : createSession()
         console.log('Herhangi bir kayıt yok')
-        clientMap[socketToken].client = new Client(); 
+        clientMap[socketToken].client = new Client({
+            puppeteer: puppeteerOptions
+        }); 
 
         clientMap[socketToken].client.on('qr', qr => {
             qrcode.toDataURL(qr,(err,url)=>{
