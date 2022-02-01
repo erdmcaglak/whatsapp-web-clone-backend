@@ -1,3 +1,4 @@
+const conf = require("./config")()
 const bodyParser = require('body-parser');
 const { Client, MessageMedia, } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
@@ -8,12 +9,7 @@ const socketio = require("socket.io");
 const http = require('http');
 const server = http.createServer(app)
 const io = socketio(server,{
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST", 'DELETE'],
-        // allowedHeaders: ["my-custom-header"],
-        credentials: true
-    }
+    cors: conf.corsOptions
 })
 const _ = require('lodash');
 const EventEmitter = require('events')
@@ -30,7 +26,17 @@ let clientMap={};
 let messageListMap ={};
 app.use(express.static(path.join(__dirname, "./dist")))
 
-server.listen(8080)
+
+//optional port number
+let isProduction = conf.args["is-production"];
+if ( isProduction === undefined ) isProduction = conf.isProduction
+
+let listenPort;
+if (isProduction) listenPort = conf.ports.production
+else listenPort = conf.ports.development
+
+
+server.listen(listenPort, ()=>console.log(`listening on the port ${listenPort}`))
 const sendImage = async (token,b64,b64Name,num,type) =>{
     const mediaFile = await new MessageMedia(`${type}`,b64,`${b64Name}`)
     const x = await sendMessage(token,num, mediaFile)
