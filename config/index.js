@@ -4,7 +4,6 @@ const dotenv = require("dotenv").config({path: path.join(__dirname, "../.env")})
 const _env = dotenv.parsed;
 
 const config = require("./config.json");
-console.log({args})
 module.exports = () => ({
     ...config,
     ..._env,

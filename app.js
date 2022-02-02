@@ -28,13 +28,14 @@ const puppeteerOptions = {
         '--disabled-setupid-sandbox',
         '--start-maximized',
         '--disable-dev-shm-usage'
-        ]
+    ],
+    executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'
 }
 
 
 let clientMap={};
 let messageListMap ={};
-app.use(express.static(path.join(__dirname, "./dist")))
+//app.use(express.static(path.join(__dirname, "./dist")))
 
 
 //----begin optional port number----
@@ -47,6 +48,7 @@ else listenPort = conf.ports.development
 //----end optional port number----
 
 server.listen(listenPort, ()=>console.log(`listening on the port ${listenPort}`))
+
 const sendImage = async (token,b64,b64Name,num,type) =>{
     const mediaFile = await new MessageMedia(`${type}`,b64,`${b64Name}`)
     const x = await sendMessage(token,num, mediaFile)
@@ -204,7 +206,6 @@ app.post('/load_image',async (req,res)=>{
 app.post('/send_message/:token',async (req,res)=>{
     const {token} = req.params;
     const {message} = req.body
-    console.log({i:req.body})
     let num;
     if(req.body.hasOwnProperty('name')){
         const {name} = req.body;
