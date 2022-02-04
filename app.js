@@ -21,6 +21,8 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(cors());
 app.use(express.urlencoded({extended:true}));
 
+app.use(express.static(path.join(__dirname, "./dist")))
+
 const puppeteerOptions = {
     args: [
         '--no-sandbox',
@@ -165,7 +167,14 @@ const getChats = async (token) =>{
 
 //post
 
-app.post('/auth_control',(req,res)=>{
+app.post('/api/logout/:token',(req,res)=>{
+    const {token} = req.params;
+    console.log({clientMap})
+    delete clientMap[token];
+    console.log({clientMap})
+})
+
+app.post('/api/auth_control',(req,res)=>{
     const {token} = req.body
     if(clientMap.hasOwnProperty(token))
         res.send({
@@ -178,7 +187,7 @@ app.post('/auth_control',(req,res)=>{
         })
 })
 
-app.post('/send_seen/:token',(req,res)=>{
+app.post('/api/send_seen/:token',(req,res)=>{
     const {token} = req.params
     const {id} = req.body
     sendSeen(token,id).then(response=>{
@@ -195,7 +204,7 @@ app.post('/send_seen/:token',(req,res)=>{
     })
 })
 
-app.post('/load_image',async (req,res)=>{
+app.post('/api/load_file',async (req,res)=>{
     const {msg,selectedNumber,token} = req.body;
     const response = await loadImage(msg,selectedNumber,token)
     res.send({
@@ -203,7 +212,7 @@ app.post('/load_image',async (req,res)=>{
     })
 })
 
-app.post('/send_message/:token',async (req,res)=>{
+app.post('/api/send_message/:token',async (req,res)=>{
     const {token} = req.params;
     const {message} = req.body
     let num;
@@ -240,7 +249,7 @@ app.post('/send_message/:token',async (req,res)=>{
 })
 
 //get
-app.get('/get_message_history/:token/:number/:limit',async (req,res)=>{
+app.get('/api/get_message_history/:token/:number/:limit',async (req,res)=>{
     const {token,number,limit} = req.params;
     let num ;
     if(number.length>12){
@@ -262,7 +271,7 @@ app.get('/get_message_history/:token/:number/:limit',async (req,res)=>{
     
 })
 
-app.get('/get_chats/:token',async (req,res)=>{
+app.get('/api/get_contacts/:token',async (req,res)=>{
     const {token} = req.params
     getChats(token).then(response=>{
         emitter.emit(`${token}`,{
@@ -287,7 +296,7 @@ app.get('/get_chats/:token',async (req,res)=>{
     })
 })
 
-app.get('/get_profile_picture/:token',async (req,res)=>{
+app.get('/api/get_profile_picture/:token',async (req,res)=>{
     const {token} = req.params;
     clientMap[token].client.getProfilePicUrl(clientMap[token].client.info.wid._serialized).then(response=>{
         res.send({
@@ -304,7 +313,7 @@ app.get('/get_profile_picture/:token',async (req,res)=>{
     })
 })
 
-app.get('/get_info/:token',async (req,res)=>{
+app.get('/api/get_info/:token',async (req,res)=>{
     const {token} = req.params;
     clientMap[token].client.info.getBatteryStatus().then(response=>{
         const obj = {
@@ -327,7 +336,7 @@ app.get('/get_info/:token',async (req,res)=>{
     });
 })
 
-app.get('/is_sign_in/:token',async (req,res)=>{
+app.get('/api/is_sign_in/:token',async (req,res)=>{
     const {token} = req.params;
     if(clientMap[token].isReady){
         clientMap[token].client.getProfilePicUrl(clientMap[token].client.info.me._serialized).then(response=>{
@@ -355,7 +364,7 @@ app.get('/is_sign_in/:token',async (req,res)=>{
     }
 })
 
-app.post('/send_image/:token',(req,res)=>{
+app.post('/api/send_file/:token',(req,res)=>{
     const {token} = req.params;
     const {b64,b64Name,number,type} = req.body;
     if(number.includes('-'))
@@ -394,6 +403,12 @@ io.on('connection',socket=>{
         emitter.removeListener(socketToken,emitterControl)
     })
 
+    socket.on('logout',()=>{
+        clientMap[socketToken].client.destroy();
+        delete clientMap[socketToken];
+        withOutSession();
+    });
+
     const withSession = () =>{
         const readyFunction = () =>{
             console.log('Client Hazır')
@@ -430,13 +445,13 @@ io.on('connection',socket=>{
 
     const emitterControl = (data)=>{
         if(data.action == 'get_chats_true'){
-            socket.emit('get_chats',{
+            socket.emit('get_contacts',{
                 status:true,
                 data:data.res
             });
         }
         else if(data.action == 'get_chats_false'){
-            socket.emit('get_chats',{
+            socket.emit('get_contacts',{
                 status:false,
                 err:data.err,
                 err_desc:data.err_desc,
@@ -486,6 +501,7 @@ io.on('connection',socket=>{
             socket.emit('is_auth',clientMap[socketToken].isAuth)
             socket.emit('start_loading',true)
             clientMap[socketToken].session = session;
+            clientMap[socketToken].client.destroy();
             withSession()
         });
 
