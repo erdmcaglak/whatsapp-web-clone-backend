@@ -109,6 +109,7 @@ const getMessageHistory =async (token,num,limit)=>{
 }
 
 const getContacts = async (token) =>{
+    console.log('bbb')
         await clientMap[token].client.getChats().then(res=>{
             emitter.emit(`${token}`,{
                 action:'get_chats_true',
@@ -169,9 +170,7 @@ const getChats = async (token) =>{
 
 app.post('/api/logout/:token',(req,res)=>{
     const {token} = req.params;
-    console.log({clientMap})
     delete clientMap[token];
-    console.log({clientMap})
 })
 
 app.post('/api/auth_control',(req,res)=>{
@@ -246,6 +245,34 @@ app.post('/api/send_message/:token',async (req,res)=>{
         })
     })
 
+})
+
+app.post('/api/send_file/:token',(req,res)=>{
+    const {token} = req.params;
+    const {b64,b64Name,number,type} = req.body;
+    if(number.includes('-'))
+        num = number + '@g.us'
+    else
+        num = number + '@c.us'
+    sendImage(token,b64,b64Name,num,type).then(async response=>{
+        await getContacts(token)
+        res.send({
+            status:true,
+            response,
+            data:{
+                b64,
+                b64Name,
+                number,
+                type
+            }
+        })
+    }).catch(err=>{
+        res.send({
+            status:false,
+            err,
+            err_desc:"Resim gönderilemedi"
+        })
+    })
 })
 
 //get
@@ -339,6 +366,7 @@ app.get('/api/get_info/:token',async (req,res)=>{
 app.get('/api/is_sign_in/:token',async (req,res)=>{
     const {token} = req.params;
     if(clientMap[token].isReady){
+        console.log("----------------")
         clientMap[token].client.getProfilePicUrl(clientMap[token].client.info.me._serialized).then(response=>{
             getChats(token).then(chat=>{
                 res.send({
@@ -364,33 +392,7 @@ app.get('/api/is_sign_in/:token',async (req,res)=>{
     }
 })
 
-app.post('/api/send_file/:token',(req,res)=>{
-    const {token} = req.params;
-    const {b64,b64Name,number,type} = req.body;
-    if(number.includes('-'))
-        num = number + '@g.us'
-    else
-        num = number + '@c.us'
-    sendImage(token,b64,b64Name,num,type).then(async response=>{
-        await getContacts(token)
-        res.send({
-            status:true,
-            response,
-            data:{
-                b64,
-                b64Name,
-                number,
-                type
-            }
-        })
-    }).catch(err=>{
-        res.send({
-            status:false,
-            err,
-            err_desc:"Resim gönderilemedi"
-        })
-    })
-})
+
 
 
 
@@ -426,7 +428,7 @@ io.on('connection',socket=>{
                 puppeteer: puppeteerOptions
             });
             clientMap[socketToken].isHasSession = true;
-            clientMap[socketToken].client.initialize();
+            clientMap[socketToken].client.initialize().catch(ex => {});
 
             clientMap[socketToken].client.on('ready', readyFunction);
 
@@ -445,6 +447,7 @@ io.on('connection',socket=>{
 
     const emitterControl = (data)=>{
         if(data.action == 'get_chats_true'){
+            console.log('cccc')
             socket.emit('get_contacts',{
                 status:true,
                 data:data.res
@@ -505,7 +508,7 @@ io.on('connection',socket=>{
             withSession()
         });
 
-        clientMap[socketToken].client.initialize();
+        clientMap[socketToken].client.initialize().catch(ex => {});
     }
 
     const createSession = () =>{
