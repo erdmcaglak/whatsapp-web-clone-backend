@@ -7,23 +7,22 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-pm2-test": "pm2 start 'node /home/whapichat/node/whapichat_server-test/app.js' --name=server-development",
     "start-pm2": "pm2 start 'node /home/whapichat/node/whapichat_server/app.js --is-production=1' --name=server-production",
-    "extract-whapichat-server.tar.gz-in-test" : "tar xzvfp ../whapichat-server.tar.gz --directory=/home/whapichat/node/whapichat_server-test",
-    "extract-whapichat-server.tar.gz" : "tar xzvfp ../whapichat-server.tar.gz --directory=/home/whapichat/node/whapichat_server",
-    "pack-whapichat-server.tar.gz" : "tar czvfp ../whapichat-server.tar.gz --exclude=node_modules --exclude=.git ."
-
+    "extract-whapichat-server.tar.gz-in-test": "tar xzvfp ../whapichat-server.tar.gz --directory=/home/whapichat/node/whapichat_server-test",
+    "extract-whapichat-server.tar.gz": "tar xzvfp ../whapichat-server.tar.gz --directory=/home/whapichat/node/whapichat_server",
+    "pack-whapichat-server.tar.gz": "tar czvfp ../whapichat-server.tar.gz --exclude=node_modules --exclude=.git ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.19.1",
+    "body-parser": "^1.19.2",
     "cors": "^2.8.5",
-    "dotenv": "^15.0.0",
-    "express": "^4.17.2",
+    "dotenv": "^15.0.1",
+    "express": "^4.17.3",
     "lodash": "^4.17.21",
     "minimist": "^1.2.5",
     "moment": "^2.29.1",
     "qrcode": "^1.5.0",
     "socket.io": "^4.4.1",
-    "whatsapp-web.js": "^1.15.4"
+    "whatsapp-web.js": "^1.16.1"
   }
 }

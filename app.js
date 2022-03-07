@@ -1,6 +1,6 @@
 const conf = require("./config")()
 const bodyParser = require('body-parser');
-const { Client, MessageMedia, } = require('whatsapp-web.js');
+const { Client, MessageMedia, LegacySessionAuth} = require('whatsapp-web.js');
 const qrcode = require('qrcode');
 const cors = require('cors')
 const express = require('express');
@@ -424,8 +424,11 @@ io.on('connection',socket=>{
 
         if(!clientMap[socketToken].isHasSession){
             clientMap[socketToken].client = new Client({
-                session: clientMap[socketToken].session,
-                puppeteer: puppeteerOptions
+                authStrategy: new LegacySessionAuth({
+                    session: clientMap[socketToken].session,
+                    puppeteer: puppeteerOptions
+                }),
+                
             });
             clientMap[socketToken].isHasSession = true;
             clientMap[socketToken].client.initialize().catch(ex => {});
@@ -481,7 +484,7 @@ io.on('connection',socket=>{
 
     const getUserNumber = ()=>{
         socket.emit('user_number',{
-            number:clientMap[socketToken].client.info.wid.user,
+            number:clientMap[socketToken].client.info.me.user,
             _serialized:clientMap[socketToken].client.info.wid._serialized
         })
     }
@@ -490,6 +493,7 @@ io.on('connection',socket=>{
         clientMap.hasOwnProperty(socketToken) ? '' : createSession()
         console.log('Herhangi bir kayıt yok')
         clientMap[socketToken].client = new Client({
+            authStrategy: new LegacySessionAuth({}),
             puppeteer: puppeteerOptions
         }); 
 
